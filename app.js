@@ -1,7 +1,7 @@
 // Buka atau buat database
 let db;
 const request = indexedDB.open('CrudDB', 1);
-
+//  Membuat struktur database baru atau memodifikasi.
 request.onupgradeneeded = (event) => {
     db = event.target.result;
     // Buat object store (tabel) jika belum ada
