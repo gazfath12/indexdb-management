@@ -1,0 +1,555 @@
+<!DOCTYPE html >
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="description" content="Data Management Application with PWA">
+    <title>Data Management PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-container {
+            background-color: var(--light-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        #dataForm {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        input {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            height: fit-content;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #dataList {
+            margin-top: 2rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .data-table tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-edit {
+            background-color: var(--accent-color);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+        }
+
+        .search-container {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+        }
+
+        .install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 500;
+            box-shadow: var(--box-shadow);
+            display: none;
+            z-index: 1000;
+        }
+
+        .offline-notification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #ff9800;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            #dataForm {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (display-mode: standalone) {
+            body {
+                padding-top: 20px;
+            }
+            
+            .install-btn {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-notification" id="offlineNotification">
+        Anda sedang dalam mode offline. Perubahan akan disinkronkan ketika online.
+    </div>
+
+    <button class="install-btn" id="installButton">
+        <i class="fas fa-download"></i> Install App
+    </button>
+
+    <div class="container">
+        <h1><i class="fas fa-database"></i> Manajemen Data</h1>
+        
+        <div class="form-container">
+            <form id="dataForm">
+                <div class="form-group">
+                    <label for="name">Nama Lengkap</label>
+                    <input type="text" id="name" placeholder="Masukkan nama" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Alamat Email</label>
+                    <input type="email" id="email" placeholder="Masukkan email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Usia</label>
+                    <input type="number" id="age" placeholder="Masukkan usia">
+                </div>
+                
+                <button type="submit">
+                    <i class="fas fa-save"></i> Simpan Data
+                </button>
+            </form>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari data...">
+            <button id="clearSearch">
+                <i class="fas fa-times"></i> Reset
+            </button>
+        </div>
+        
+        <div id="dataList">
+            <div class="empty-state">
+                <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <h3>Tidak ada data tersimpan</h3>
+                <p>Mulailah dengan menambahkan data baru menggunakan form di atas</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PWA Installation
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+        
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installButton.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+        
+        // Offline Detection
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        function updateOnlineStatus() {
+            const offlineNotification = document.getElementById('offlineNotification');
+            if (!navigator.onLine) {
+                offlineNotification.style.display = 'block';
+            } else {
+                offlineNotification.style.display = 'none';
+            }
+        }
+        
+        // Initialize
+        updateOnlineStatus();
+    </script>
+
+    <script>
+        // Database and CRUD Operations
+        let db;
+        const DB_NAME = 'DataManagementDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'users';
+        
+        // Open or create database
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onupgradeneeded = (event) => {
+            db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                const store = db.createObjectStore(STORE_NAME, { 
+                    keyPath: 'id', 
+                    autoIncrement: true 
+                });
+                store.createIndex('name', 'name', { unique: false });
+                store.createIndex('email', 'email', { unique: true });
+            }
+        };
+        
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            loadData();
+        };
+        
+        request.onerror = (event) => {
+            console.error('Database error:', event.target.error);
+        };
+        
+        // Form submission
+        document.getElementById('dataForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const user = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                age: parseInt(document.getElementById('age').value) || null,
+                timestamp: new Date().getTime()
+            };
+            
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.add(user);
+            
+            request.onsuccess = () => {
+                document.getElementById('dataForm').reset();
+                loadData();
+                
+                // Show notification
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('Data berhasil disimpan', {
+                        body: `Data ${user.name} telah ditambahkan`,
+                        icon: '/icon-192x192.png'
+                    });
+                }
+            };
+        });
+        
+        // Load and display data
+        function loadData(searchTerm = '') {
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
+            
+            request.onsuccess = (event) => {
+                const dataList = document.getElementById('dataList');
+                const users = event.target.result;
+                
+                if (users.length === 0) {
+                    dataList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h3>Tidak ada data tersimpan</h3>
+                            <p>Mulailah dengan menambahkan data baru menggunakan form di atas</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Filter data if search term exists
+                let filteredUsers = users;
+                if (searchTerm) {
+                    filteredUsers = users.filter(user => 
+                        user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+                
+                if (filteredUsers.length === 0) {
+                    dataList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h3>Data tidak ditemukan</h3>
+                            <p>Tidak ada data yang cocok dengan pencarian Anda</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Create table
+                let tableHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Usia</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                filteredUsers.forEach(user => {
+                    tableHTML += `
+                        <tr>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.age || '-'}</td>
+                            <td class="action-buttons">
+                                <button class="btn-edit" onclick="editUser(${user.id})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn-delete" onclick="deleteUser(${user.id})">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `</tbody></table>`;
+                dataList.innerHTML = tableHTML;
+            };
+        }
+        
+        // Edit user
+        function editUser(id) {
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(id);
+            
+            request.onsuccess = (event) => {
+                const user = event.target.result;
+                document.getElementById('name').value = user.name;
+                document.getElementById('email').value = user.email;
+                document.getElementById('age').value = user.age || '';
+                
+                // Change form to edit mode
+                const form = document.getElementById('dataForm');
+                form.onsubmit = (e) => {
+                    e.preventDefault();
+                    
+                    const updatedUser = {
+                        id: id,
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        age: parseInt(document.getElementById('age').value) || null,
+                        timestamp: new Date().getTime()
+                    };
+                    
+                    const updateTransaction = db.transaction([STORE_NAME], 'readwrite');
+                    const updateStore = updateTransaction.objectStore(STORE_NAME);
+                    updateStore.put(updatedUser);
+                    
+                    updateTransaction.oncomplete = () => {
+                        form.reset();
+                        form.onsubmit = submitHandler;
+                        loadData();
+                    };
+                };
+            };
+        }
+        
+        // Delete user
+        function deleteUser(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                transaction.objectStore(STORE_NAME).delete(id);
+                
+                transaction.oncomplete = () => {
+                    loadData();
+                };
+            }
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            loadData(e.target.value);
+        });
+        
+        document.getElementById('clearSearch').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            loadData();
+        });
+        
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        
+        // Request notification permission
+        if ('Notification' in window) {
+            Notification.requestPermission().then(permission => {
+                console.log('Notification permission:', permission);
+            });
+        }
+    </script>
+</body>
+</html>
