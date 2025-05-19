@@ -1,10 +1,9 @@
-const CACHE_NAME = 'data-manager-v1';
+const CACHE_NAME = 'data-manager-v4';
 const ASSETS_TO_CACHE = [
-  '/',
+  '/script.js',
   '/index.html',
   '/app.js',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/sw.js'
 ];
 
 self.addEventListener('install', (event) => {
